@@ -1,0 +1,24 @@
+item {
+  id: 1
+  name: 'eyes'
+}
+
+item {
+  id: 2
+  name: 'hair'
+}
+
+item {
+  id: 3
+  name: 'mouth'
+}
+
+item {
+  id: 4
+  name: 'nose'
+}
+
+item {
+  id: 5
+  name: 'face'
+}
