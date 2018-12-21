@@ -12,8 +12,8 @@ from PIL import Image
 from research.object_detection.utils import label_map_util
 from research.object_detection.utils import visualization_utils as vis_util
 
-from slipi.libs.utils.utils import load_image_into_numpy_array
-from slipi.libs.inference.run_inference import run_inference_for_single_image_with_session
+from libs.utils.utils import load_image_into_numpy_array
+from libs.inference.run_inference import run_inference_for_single_image_with_session
 
 
 if StrictVersion(tf.__version__) < StrictVersion('1.9.0'):

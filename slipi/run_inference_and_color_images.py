@@ -7,9 +7,9 @@ from PIL import Image
 
 from tqdm import tqdm
 
-from slipi.libs.utils.utils import load_image_into_numpy_array
-from slipi.libs.inference.run_inference import run_inference_for_single_image_with_session
-from slipi.libs.drawing.drawing import draw_masks_on_single_image
+from libs.utils.utils import load_image_into_numpy_array
+from libs.inference.run_inference import run_inference_for_single_image_with_session
+from libs.drawing.drawing import draw_masks_on_single_image
 
 
 def do_parsing():
