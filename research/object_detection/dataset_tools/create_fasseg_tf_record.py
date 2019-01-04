@@ -42,15 +42,19 @@ def retrieve_files(data_dir, super_directory):
     return images
 
 
-def get_class_name_from_mask_path(mask_path):
+def get_class_name_from_mask_path(img_path, mask_path):
   """
   Gets the class name from a mask path.
 
   Returns:
     A string of the class name.
   """
-  filename = os.path.basename(mask_path)
-  class_name = filename[filename.find("_") + 1 : filename.rfind("_")]
+  image_filename = os.path.basename(img_path)
+  image_filename_noext = image_filename[:-4]
+  mask_filename = os.path.basename(mask_path)
+  meaningful_mask_filename_part = mask_filename[len(image_filename_noext):]
+  class_name = meaningful_mask_filename_part[meaningful_mask_filename_part.find("_") + 1 :
+                                             meaningful_mask_filename_part.rfind("_")]
   return class_name
 
 
@@ -111,7 +115,7 @@ def dict_to_tf_example(data,
   for index, mask_path in enumerate(mask_paths):
 
     # Retrieve class name from mask_path
-    class_name = get_class_name_from_mask_path(mask_path)
+    class_name = get_class_name_from_mask_path(img_path, mask_path)
     classes_text.append(class_name.encode('utf8'))
     classes.append(label_map_dict[class_name])
 
@@ -221,7 +225,11 @@ def create_tf_record(output_filename,
         if tf_example:
           shard_idx = idx % num_shards
           output_tfrecords[shard_idx].write(tf_example.SerializeToString())
-      except ValueError:
+      except ValueError as e:
+        print(e)
+        logging.warning('Invalid example: %s, ignoring.', image_path)
+      except OSError as e:
+        print(e)
         logging.warning('Invalid example: %s, ignoring.', image_path)
 
 
