@@ -47,8 +47,7 @@ def main():
     assert os.path.exists(args.dataset_dir), "Dataset directory does not exist"
 
     if args.output_dir:
-        # FIXME: Set to False
-        os.makedirs(args.output_dir, exist_ok=True)
+        os.makedirs(args.output_dir, exist_ok=False)
 
     # Load labels
     category_index = label_map_util.create_category_index_from_labelmap(args.labels_path, use_display_name=True)

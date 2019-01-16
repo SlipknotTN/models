@@ -8,7 +8,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from libs.utils.utils import load_image_into_numpy_array
-from libs.inference.run_inference import run_inference_for_single_image_with_session
+from libs.inference.run_inference import run_inference_for_single_image_with_graph
 from libs.drawing.drawing import draw_masks_on_single_image
 
 
@@ -68,26 +68,22 @@ def main():
                     images_paths.append(os.path.join(root, file))
                     os.makedirs(os.path.join(args.output_dir, os.path.relpath(root, args.images_dir)), exist_ok=True)
 
-    with detection_graph.as_default():
+    for image_path in tqdm(images_paths, desc="image"):
+        print(image_path)
+        image = Image.open(image_path)
+        # the array based representation of the image will be used later in order to prepare the
+        # result image with boxes and labels on it.
+        image_np = load_image_into_numpy_array(image)
+        # Actual detection
+        output_dict = run_inference_for_single_image_with_graph(image_np, detection_graph)
 
-        with tf.Session() as sess:
+        # Single image mask
+        image_mask = draw_masks_on_single_image(output_dict, classes, threshold=args.threshold)
 
-            for image_path in tqdm(images_paths, desc="image"):
-                print(image_path)
-                image = Image.open(image_path)
-                # the array based representation of the image will be used later in order to prepare the
-                # result image with boxes and labels on it.
-                image_np = load_image_into_numpy_array(image)
-                # Actual detection
-                output_dict = run_inference_for_single_image_with_session(image_np, sess=sess)
-
-                # Single image mask
-                image_mask = draw_masks_on_single_image(output_dict, classes, threshold=args.threshold)
-
-                dest_path = os.path.join(args.output_dir, os.path.relpath(image_path, args.images_dir))
-                dest_full_pred_path = dest_path[:-3] + args.output_format
-                output_image = Image.fromarray(image_mask)
-                output_image.save(dest_full_pred_path)
+        dest_path = os.path.join(args.output_dir, os.path.relpath(image_path, args.images_dir))
+        dest_full_pred_path = dest_path[:-3] + args.output_format
+        output_image = Image.fromarray(image_mask)
+        output_image.save(dest_full_pred_path)
 
     print("Success")
 
