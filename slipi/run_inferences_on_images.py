@@ -13,7 +13,7 @@ from research.object_detection.utils import label_map_util
 from research.object_detection.utils import visualization_utils as vis_util
 
 from libs.utils.utils import load_image_into_numpy_array
-from libs.inference.run_inference import run_inference_for_single_image_with_session
+from libs.inference.run_inference import run_inference_for_single_image_with_graph
 
 
 if StrictVersion(tf.__version__) < StrictVersion('1.9.0'):
@@ -73,33 +73,29 @@ def main():
     # Size, in inches, of the output images for matplotlib
     IMAGE_SIZE = (12, 8)
 
-    with detection_graph.as_default():
-
-        with tf.Session() as sess:
-
-            for image_path in tqdm(imagefiles, desc="image"):
-                print(image_path)
-                image = Image.open(image_path)
-                # the array based representation of the image will be used later in order to prepare the
-                # result image with boxes and labels on it.
-                image_np = load_image_into_numpy_array(image)
-                # Actual detection
-                output_dict = run_inference_for_single_image_with_session(image_np, sess=sess)
-                # Visualization of the results of a detection.
-                vis_util.visualize_boxes_and_labels_on_image_array(
-                    image_np,
-                    output_dict['detection_boxes'],
-                    output_dict['detection_classes'],
-                    output_dict['detection_scores'],
-                    category_index,
-                    min_score_thresh=0.7,
-                    instance_masks=output_dict.get('detection_masks'),
-                    use_normalized_coordinates=True,
-                    line_thickness=2)
-                plt.figure(figsize=IMAGE_SIZE)
-                # plt.imshow(image_np)
-                if args.output_dir:
-                    plt.imsave(os.path.join(args.output_dir, os.path.basename(image_path)), image_np)
+    for image_path in tqdm(imagefiles, desc="image"):
+        print(image_path)
+        image = Image.open(image_path)
+        # the array based representation of the image will be used later in order to prepare the
+        # result image with boxes and labels on it.
+        image_np = load_image_into_numpy_array(image)
+        # Actual detection
+        output_dict = run_inference_for_single_image_with_graph(image_np, detection_graph)
+        # Visualization of the results of a detection.
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            image_np,
+            output_dict['detection_boxes'],
+            output_dict['detection_classes'],
+            output_dict['detection_scores'],
+            category_index,
+            min_score_thresh=0.7,
+            instance_masks=output_dict.get('detection_masks'),
+            use_normalized_coordinates=True,
+            line_thickness=2)
+        plt.figure(figsize=IMAGE_SIZE)
+        # plt.imshow(image_np)
+        if args.output_dir:
+            plt.imsave(os.path.join(args.output_dir, os.path.basename(image_path)), image_np)
 
 
 if __name__ == "__main__":
